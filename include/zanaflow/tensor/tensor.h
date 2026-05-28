@@ -1,5 +1,5 @@
 #ifndef TENSOR_H
-#define TENDOR_H
+#define TENSOR_H
 
 typedef struct {
     float *data;

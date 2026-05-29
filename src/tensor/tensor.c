@@ -80,3 +80,148 @@ void tensor_free(Tensor *t)
     free(t->shape);
     free(t);
 }
+
+Tensor *tensor_clone(const Tensor *t)
+{
+    if (t == NULL)
+    {
+        return NULL;
+    }
+
+    Tensor *out = tensor_create(t -> shape, t -> ndim);
+
+    if (out == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < t -> size; i++)
+    {
+        out -> data[i] = t -> data[i];
+    }
+
+    return out;
+}
+
+Tensor *tensor_mul_scalar(const Tensor *a, float s)
+{
+    if (a == NULL)
+    {
+        return NULL;
+    }
+
+    Tensor *out = tensor_create(a -> shape, a -> ndim);
+
+    if (out == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < a -> size; i++)
+    {
+        out -> data[i] = a -> data[i] * s;
+    }
+
+    return out;
+}
+
+Tensor *tensor_add_scalar(const Tensor *a, float s)
+{
+    if (a == NULL)
+    {
+        return NULL;
+    }
+
+    Tensor *out = tensor_create(a -> shape, a -> ndim);
+
+    if (out == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < a -> size; i++)
+    {
+        out -> data[i] = a -> data[i] + s;
+    }
+
+    return out;
+}
+
+Tensor *tensor_zeros(int *shape, int ndim)
+{
+    Tensor *t = tensor_create(shape, ndim);
+    if (t == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < t -> size; i++)
+    {
+        t -> data[i] = 0.0f;
+    }
+
+    return t;
+}
+
+Tensor *tensor_ones(int *shape, int ndim)
+{
+    Tensor *t = tensor_create(shape, ndim);
+    if (t == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < t -> size; i++)
+    {
+        t -> data[i] = 1.0f;
+    }
+
+    return t;
+}
+
+Tensor *tensor_flatten(const Tensor *t)
+{
+    if (!t)
+    {
+        return NULL;
+    }
+
+    int new_shape[1] = { t->size };
+    Tensor *out = tensor_create(new_shape, 1);
+    if (!out)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < t->size; i++)
+        out->data[i] = t->data[i];
+
+    return out;
+}
+
+
+Tensor *tensor_reshape(const Tensor *t, int *new_shape, int new_ndim)
+{
+    if (t == NULL) return NULL;
+
+    int new_size = 1;
+    for (int i = 0; i < new_ndim; i++)
+    {
+        new_size *= new_shape[i];
+    }
+
+    if (new_size != t->size)
+    {
+        return NULL;
+    }
+
+    Tensor *out = tensor_create(new_shape, new_ndim);
+    if (out == NULL) return NULL;
+
+    for (int i = 0; i < t->size; i++)
+    {
+        out->data[i] = t->data[i];
+    }
+
+    return out;
+}

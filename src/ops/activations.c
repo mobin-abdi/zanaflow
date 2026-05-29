@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <float.h>
 #include <zanaflow/ops/activations.h>
 
 Tensor *relu_activation(const Tensor *a) {
@@ -96,16 +97,15 @@ Tensor *softmax_activation(const Tensor *a)
         return NULL;
     }
 
-    float m = a->data[0];
-    for (int i = 1; i < a->size; i++) {
-        if (a->data[i] > m) m = a->data[i];
+    float max_val = -FLT_MAX;
+    for (int i = 0; i < a -> size; i++) {
+        if (a -> data[i] > max_val) max_val = a -> data[i];
     }
 
     float sum = 0.0f;
-    for (int i = 0; i < a->size; i++) {
-        float e = expf(a->data[i] - m);
-        out->data[i] = e;
-        sum += e;
+    for (int i = 0; i < a -> size; i++) {
+        out -> data[i] = expf(a -> data[i] - max_val); // کم کردن ماکزیمم
+        sum += out -> data[i];
     }
 
     if (sum == 0.0f)
@@ -114,8 +114,8 @@ Tensor *softmax_activation(const Tensor *a)
         return NULL;
     }
 
-    for (int i = 0; i < a->size; i++) {
-        out->data[i] /= sum;
+    for (int i = 0; i < a -> size; i++) {
+        out -> data[i] /= sum;
     }
 
     return out;

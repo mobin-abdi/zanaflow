@@ -20,5 +20,6 @@ Tensor *tensor_zeros(int *shape, int ndim);
 Tensor *tensor_ones(int *shape, int ndim);
 Tensor *tensor_flatten(const Tensor *t);
 Tensor *tensor_reshape(const Tensor *t, int *new_shape, int new_ndim);
+void tensor_fill_random_uniform(Tensor *tensor, float low, float high);
 
 #endif 

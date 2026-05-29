@@ -225,3 +225,12 @@ Tensor *tensor_reshape(const Tensor *t, int *new_shape, int new_ndim)
 
     return out;
 }
+
+void tensor_fill_random_uniform(Tensor *tensor, float low, float high)
+{
+    float range = high - low;
+    for (int i = 0; i < tensor->size; i++)
+    {
+        tensor->data[i] = low + ((float)rand() / (float)RAND_MAX) * range;
+    }
+}

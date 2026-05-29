@@ -118,3 +118,21 @@ float tensor_mean_all(const Tensor *a)
 
     return tensor_sum_all(a) / (float)a->size;
 }
+
+Tensor *tensor_add_bias(const Tensor *a, const Tensor *b) {
+    if (a->shape[1] != b->shape[1])
+    {
+        return NULL;
+    }
+
+    Tensor *res = tensor_create(a->shape, a->ndim);
+    int M = a->shape[0];
+    int N = a->shape[1];
+
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            res->data[i * N + j] = a->data[i * N + j] + b->data[j];
+        }
+    }
+    return res;
+}

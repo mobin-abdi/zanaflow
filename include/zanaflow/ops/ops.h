@@ -4,15 +4,11 @@
 #include <zanaflow/tensor/tensor.h>
 
 int tensor_same_shape(const Tensor *a, const Tensor *b);
-
-Tensor *tensor_add(const Tensor *a, const Tensor *b);
-Tensor *tensor_sub(const Tensor *a, const Tensor *b);
-Tensor *tensor_mul(const Tensor *a, const Tensor *b);
-// Tensor *tensor_div(const Tensor *a, const Tensor *b);
-
-float tensor_sum_all(const Tensor *a);
-float tensor_mean_all(const Tensor *a);
-
-Tensor *tensor_add_bias(const Tensor *a, const Tensor *b);
+Tensor *tensor_add(Tensor *a, Tensor *b);
+Tensor *tensor_sub(Tensor *a, Tensor *b);
+Tensor *tensor_mul(Tensor *a, Tensor *b);
+Tensor *tensor_add_bias(Tensor *a, Tensor *b);
+Tensor *tensor_sum_all(Tensor *a);
+Tensor *tensor_mean_all(Tensor *a);
 
 #endif 

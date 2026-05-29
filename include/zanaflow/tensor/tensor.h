@@ -1,25 +1,28 @@
 #ifndef TENSOR_H
 #define TENSOR_H
 
-typedef struct {
+#include <zanaflow/core/refcount.h>
+
+typedef struct AutogradNode AutogradNode;
+
+typedef struct Tensor {
     float *data;
+    float *grad;
     int *shape;
     int ndim;
     int size;
+
+    int requires_grad;
+    AutogradNode *grad_node;
+    RefCount ref;
 } Tensor;
 
-int compute_size(int *shape, int ndim);
 Tensor *tensor_create(int *shape, int ndim);
-void tensor_fill(Tensor *tensor, float value);
+void tensor_retain(Tensor *t);
+void tensor_release(Tensor *t);
+int tensor_ensure_grad(Tensor *t);
+void tensor_zero_grad(Tensor *t);
 void tensor_print(Tensor *t);
-void tensor_free(Tensor *t);
-Tensor *tensor_clone(const Tensor *t);
-Tensor *tensor_mul_scalar(const Tensor *a, float s);
-Tensor *tensor_add_scalar(const Tensor *a, float s);
-Tensor *tensor_zeros(int *shape, int ndim);
-Tensor *tensor_ones(int *shape, int ndim);
-Tensor *tensor_flatten(const Tensor *t);
-Tensor *tensor_reshape(const Tensor *t, int *new_shape, int new_ndim);
-void tensor_fill_random_uniform(Tensor *tensor, float low, float high);
+Tensor *tensor_clone(Tensor *t);
 
-#endif 
+#endif

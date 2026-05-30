@@ -1,4 +1,2 @@
 *.exe
-build.bat
-CMakeLists.txt
 build/

@@ -3,42 +3,55 @@
 #include <float.h>
 #include <zanaflow/ops/activations.h>
 
-Tensor *relu_activation(const Tensor *a) {
-    if (a == NULL) return NULL;
+Tensor *zf_relu(const Tensor *a) {
+    if (a == NULL)
+    {
+        return NULL;
+    }
 
-    Tensor *out = tensor_create(a->shape, a->ndim);
-    if (out == NULL) return NULL;
+    Tensor *out = zf_tensor_create(a->shape, a->ndim);
+    if (out == NULL)
+    {
+        return NULL;
+    }
 
-    for (int i = 0; i < a->size; i++) {
-        // f(x) = max(0, x)
+    for (int i = 0; i < a->size; i++) 
+    {
         out->data[i] = (a->data[i] > 0.0f) ? a->data[i] : 0.0f;
     }
 
     return out;
 }
 
-Tensor *sigmoid_activation(const Tensor *a) {
-    if (a == NULL) return NULL;
-
-    Tensor *out = tensor_create(a->shape, a->ndim);
-    if (out == NULL) return NULL;
-
-    for (int i = 0; i < a->size; i++) {
-        // f(x) = 1 / (1 + exp(-x))
-        out->data[i] = 1.0f / (1.0f + expf(-a->data[i]));
-    }
-
-    return out;
-}
-
-Tensor *leaky_relu_activation(const Tensor *a, float alpha)
+Tensor *zf_sigmoid(const Tensor *a) 
 {
     if (a == NULL)
     {
         return NULL;
     }
 
-    Tensor *out = tensor_create(a -> shape, a -> ndim);
+    Tensor *out = zf_tensor_create(a->shape, a->ndim);
+    if (out == NULL)
+    {
+        return NULL;
+    }
+
+    for (int i = 0; i < a->size; i++) 
+    {
+        out->data[i] = 1.0f / (1.0f + expf(-a->data[i]));
+    }
+
+    return out;
+}
+
+Tensor *zf_leaky_relu(const Tensor *a, float alpha)
+{
+    if (a == NULL)
+    {
+        return NULL;
+    }
+
+    Tensor *out = zf_tensor_create(a -> shape, a -> ndim);
     
     if (out == NULL)
     {
@@ -53,14 +66,14 @@ Tensor *leaky_relu_activation(const Tensor *a, float alpha)
 
     return out;
 }
-Tensor *tanh_activation(const Tensor *a)
+Tensor *zf_tanh(const Tensor *a)
 {
     if (a == NULL)
     {
         return NULL;
     }
 
-    Tensor *out = tensor_create(a -> shape, a -> ndim);
+    Tensor *out = zf_tensor_create(a -> shape, a -> ndim);
     if (a == NULL)
     {
         return NULL;
@@ -73,7 +86,7 @@ Tensor *tanh_activation(const Tensor *a)
     return out;
 }
 
-Tensor *softmax_activation(const Tensor *a)
+Tensor *zf_softmax(const Tensor *a)
 {
     if (a == NULL)
     {
@@ -90,7 +103,7 @@ Tensor *softmax_activation(const Tensor *a)
         return NULL;
     }
 
-    Tensor *out = tensor_create(a -> shape, a -> ndim);
+    Tensor *out = zf_tensor_create(a -> shape, a -> ndim);
 
     if (out == NULL)
     {
@@ -98,23 +111,26 @@ Tensor *softmax_activation(const Tensor *a)
     }
 
     float max_val = -FLT_MAX;
-    for (int i = 0; i < a -> size; i++) {
+    for (int i = 0; i < a -> size; i++) 
+    {
         if (a -> data[i] > max_val) max_val = a -> data[i];
     }
 
     float sum = 0.0f;
-    for (int i = 0; i < a -> size; i++) {
+    for (int i = 0; i < a -> size; i++) 
+    {
         out -> data[i] = expf(a -> data[i] - max_val); // کم کردن ماکزیمم
         sum += out -> data[i];
     }
 
     if (sum == 0.0f)
     {
-        tensor_free(out);
+        zf_tensor_release(out);
         return NULL;
     }
 
-    for (int i = 0; i < a -> size; i++) {
+    for (int i = 0; i < a -> size; i++) 
+    {
         out -> data[i] /= sum;
     }
 

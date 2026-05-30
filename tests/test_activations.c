@@ -65,20 +65,21 @@
 #include <zanaflow/tensor/tensor.h>
 #include <zanaflow/ops/activations.h>
 
-static int almost_equal(float a, float b, float eps) {
+static int almost_equal(float a, float b, float eps)
+{
     return fabsf(a - b) < eps;
 }
 
 void test_leaky_relu()
 {
     int shape[] = {4};
-    Tensor *t = tensor_create(shape, 1);
+    Tensor *t = zf_tensor_create(shape, 1);
     t->data[0] = -2.0f;
     t->data[1] = 0.0f;
     t->data[2] = 3.0f;
     t->data[3] = -1.0f;
 
-    Tensor *y = leaky_relu_activation(t, 0.1f);
+    Tensor *y = zf_leaky_relu(t, 0.1f);
     assert(y);
 
     assert(almost_equal(y->data[0], -0.2f, 1e-6f));
@@ -86,53 +87,51 @@ void test_leaky_relu()
     assert(almost_equal(y->data[2],  3.0f, 1e-6f));
     assert(almost_equal(y->data[3], -0.1f, 1e-6f));
 
-    tensor_free(t);
-    tensor_free(y);
+    zf_tensor_release(t);
+    zf_tensor_release(y);
     printf("Test LeakyReLU: PASSED\n");
 }
 
 void test_tanh()
 {
     int shape[] = {3};
-    Tensor *t = tensor_create(shape, 1);
+    Tensor *t = zf_tensor_create(shape, 1);
     t->data[0] = 0.0f;
     t->data[1] = 1.0f;
     t->data[2] = -1.0f;
 
-    Tensor *y = tanh_activation(t);
+    Tensor *y = zf_tanh(t);
     assert(y);
 
     assert(almost_equal(y->data[0], 0.0f, 1e-6f));
     assert(almost_equal(y->data[1], tanhf(1.0f), 1e-6f));
     assert(almost_equal(y->data[2], tanhf(-1.0f), 1e-6f));
 
-    tensor_free(t);
-    tensor_free(y);
+    zf_tensor_release(t);
+    zf_tensor_release(y);
     printf("Test Tanh: PASSED\n");
 }
 
 void test_softmax_1d()
 {
     int shape[] = {3};
-    Tensor *t = tensor_create(shape, 1);
+    Tensor *t = zf_tensor_create(shape, 1);
 
-    // ورودی ساده
     t->data[0] = 1.0f;
     t->data[1] = 2.0f;
     t->data[2] = 3.0f;
 
-    Tensor *y = softmax_activation(t);
+    Tensor *y = zf_softmax(t);
     assert(y);
 
     float sum = y->data[0] + y->data[1] + y->data[2];
     assert(almost_equal(sum, 1.0f, 1e-5f));
 
-    // ترتیب باید حفظ بشه: بزرگ‌ترین ورودی بزرگ‌ترین خروجی
     assert(y->data[2] > y->data[1]);
     assert(y->data[1] > y->data[0]);
 
-    tensor_free(t);
-    tensor_free(y);
+    zf_tensor_release(t);
+    zf_tensor_release(y);
     printf("Test Softmax 1D: PASSED\n");
 }
 

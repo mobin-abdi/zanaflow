@@ -3,10 +3,10 @@
 
 #include <zanaflow/tensor/tensor.h>
 
-Tensor *relu_activation(const Tensor *a);
-Tensor *sigmoid_activation(const Tensor *a);
-Tensor *leaky_relu_activation(const Tensor *a, float alpha);
-Tensor *tanh_activation(const Tensor *a);
-Tensor *softmax_activation(const Tensor *a);
+Tensor *zf_relu(const Tensor *a);
+Tensor *zf_sigmoid(const Tensor *a);
+Tensor *zf_leaky_relu(const Tensor *a, float alpha);
+Tensor *zf_tanh(const Tensor *a);
+Tensor *zf_softmax(const Tensor *a);
 
 #endif 

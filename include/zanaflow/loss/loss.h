@@ -3,6 +3,6 @@
 
 #include <zanaflow/tensor/tensor.h>
 
-float mse_loss(const Tensor *pred, const Tensor *target);
+float zf_loss_mse(const Tensor *pred, const Tensor *target);
 
 #endif

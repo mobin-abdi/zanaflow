@@ -2,14 +2,14 @@
 #include <zanaflow/loss/loss.h>
 #include <zanaflow/ops/ops.h>
 
-float mse_loss(const Tensor *pred, const Tensor *target)
+float zf_loss_mse(const Tensor *pred, const Tensor *target)
 {
     if (pred == NULL || target == NULL)
     {
         return -1.0f;
     }
 
-    if (!tensor_same_shape(pred, target))
+    if (!zf_tensor_same_shape(pred, target))
     {
         return -1.0f;
     }

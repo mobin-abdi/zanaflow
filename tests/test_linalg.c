@@ -9,8 +9,8 @@ int main(void)
     int a_shape[2] = {2, 3};
     int b_shape[2] = {3, 2};
 
-    Tensor *A = tensor_create(a_shape, 2);
-    Tensor *B = tensor_create(b_shape, 2);
+    Tensor *A = zf_tensor_create(a_shape, 2);
+    Tensor *B = zf_tensor_create(b_shape, 2);
     assert(A && B);
 
     A->data[0]=1; A->data[1]=2; A->data[2]=3;
@@ -20,7 +20,7 @@ int main(void)
     B->data[2]=9;  B->data[3]=10;
     B->data[4]=11; B->data[5]=12;
 
-    Tensor *C = tensor_matmul_2d(A, B);
+    Tensor *C = zf_tensor_matmul_2d(A, B);
     assert(C);
     assert(C->ndim == 2);
     assert(C->shape[0] == 2 && C->shape[1] == 2);
@@ -30,9 +30,9 @@ int main(void)
     assert(C->data[2] == 139.0f);
     assert(C->data[3] == 154.0f);
 
-    tensor_free(A);
-    tensor_free(B);
-    tensor_free(C);
+    zf_tensor_release(A);
+    zf_tensor_release(B);
+    zf_tensor_release(C);
 
     printf("Test MatMul 2D: PASSED\n");
     return 0;

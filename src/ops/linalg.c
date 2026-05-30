@@ -1,7 +1,7 @@
 #include <stdlib.h>
-#include <zanaflow/ops/linalg.h>\
+#include <zanaflow/ops/linalg.h>
 
-Tensor *tensor_matmul_2d(const Tensor *a, const Tensor *b)
+Tensor *zf_tensor_matmul_2d(const Tensor *a, const Tensor *b)
 {
     if (a == NULL || b == NULL)
     {
@@ -24,17 +24,20 @@ Tensor *tensor_matmul_2d(const Tensor *a, const Tensor *b)
     }
 
     int out_shape[2] = { m, p };
-    Tensor *out = tensor_create(out_shape, 2);
+    Tensor *out = zf_tensor_create(out_shape, 2);
 
     if (out == NULL)
     {
         return NULL;
     }
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < p; j++) {
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < p; j++) 
+        {
             float sum = 0.0f;
-            for (int k = 0; k < n; k++) {
+            for (int k = 0; k < n; k++) 
+            {
                 float av = a->data[i * n + k];
                 float bv = b->data[k * p + j];
                 sum += av * bv;

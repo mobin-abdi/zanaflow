@@ -1,31 +1,54 @@
 #include <zanaflow/nn/dense.h>
+#include <zanaflow/ops/ops.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 
-DenseLayer *dense_create(int in_features, int out_features) {
-    if (in_features <= 0 || out_features <= 0) {
+DenseLayer *zf_dense_create(int in_features, int out_features)
+{
+    if (in_features <= 0 || out_features <= 0) 
+    {
         return NULL;
     }
 
     DenseLayer *layer = (DenseLayer *)malloc(sizeof(DenseLayer));
-    if (!layer) return NULL;
+    
+    if (!layer)
+    {
+        return NULL;
+    }
 
-    layer->weights = tensor_create(in_features, out_features);
-    layer->bias = tensor_create(1, out_features);
-    layer->grad_weights = tensor_create(in_features, out_features);
-    layer->grad_bias = tensor_create(1, out_features);
+    int w_shape[] = {in_features, out_features};
+    layer->weights = zf_tensor_create(w_shape, 2);
+    layer->grad_weights = zf_tensor_create(w_shape, 2);
 
-    if (!layer->weights || !layer->bias || !layer->grad_weights || !layer->grad_bias) {
-        tensor_free(layer->weights);
-        tensor_free(layer->bias);
-        tensor_free(layer->grad_weights);
-        tensor_free(layer->grad_bias);
+    int b_shape[] = {out_features};
+    layer->bias = zf_tensor_create(b_shape, 1);
+    layer->grad_bias = zf_tensor_create(b_shape, 1);
+
+    if (!layer->weights || !layer->bias || !layer->grad_weights || !layer->grad_bias)
+    {
+        if (layer->weights)
+        {
+            zf_tensor_release(layer->weights);
+        }
+        if (layer->bias)
+        {
+            zf_tensor_release(layer->bias);
+        }
+        if (layer->grad_weights)
+        {
+            zf_tensor_release(layer->grad_weights);
+        }
+        if (layer->grad_bias)
+        {
+            zf_tensor_release(layer->grad_bias);
+        }
         free(layer);
         return NULL;
     }
 
-    tensor_fill(layer->grad_weights, 0.0f);
-    tensor_fill(layer->grad_bias, 0.0f);
+    zf_tensor_fill(layer->grad_weights, 0.0f);
+    zf_tensor_fill(layer->grad_bias, 0.0f);
 
     layer->last_input = NULL; 
     layer->in_features = in_features;
@@ -34,50 +57,76 @@ DenseLayer *dense_create(int in_features, int out_features) {
     return layer;
 }
 
-Tensor *dense_forward(DenseLayer *layer, const Tensor *input) {
-    if (!layer || !input) return NULL;
-
-    if (input->cols != layer->in_features) {
+Tensor *zf_dense_forward(DenseLayer *layer, const Tensor *input) 
+{
+    if (!layer || !input)
+    {
         return NULL;
     }
 
-    if (layer->last_input) {
-        tensor_free(layer->last_input);
+    if (input->ndim < 2 || input->shape[1] != layer->in_features) 
+    {
+        return NULL;
     }
 
-    layer->last_input = tensor_copy(input);
-    if (!layer->last_input) return NULL;
+    if (layer->last_input) 
+    {
+        zf_tensor_release(layer->last_input);
+    }
 
-    Tensor *output_intermediate = tensor_mat_mul(input, layer->weights);
-    if (!output_intermediate) return NULL; // Allocation failed
+    layer->last_input = zf_tensor_clone(input); 
+    if (!layer->last_input)
+    {
+        return NULL;
+    }
 
-    Tensor *output = tensor_add(output_intermediate, layer->bias);
-    tensor_free(output_intermediate); 
+    Tensor *output_intermediate = zf_tensor_mat_mul(input, layer->weights);
+    if (!output_intermediate)
+    {
+        return NULL;
+    }
+
+    Tensor *output = zf_tensor_add_bias(output_intermediate, layer->bias);
+    zf_tensor_release(output_intermediate); 
+    
     return output;
 }
 
-Tensor *dense_backward(DenseLayer *layer, const Tensor *grad_output) {
-    if (!layer || !grad_output || !layer->last_input) {
+Tensor *zf_dense_backward(DenseLayer *layer, const Tensor *grad_output) 
+{
+    if (!layer || !grad_output || !layer->last_input) 
+    {
         return NULL; 
     }
     
-    Tensor *dW = tensor_mat_mul_transpose(layer->last_input, grad_output);
-    if (!dW) return NULL;
+    Tensor *dW = zf_tensor_mat_mul_transpose(layer->last_input, grad_output);
+    if (!dW) 
+    {
+        return NULL;
+    }
 
-    tensor_add_inplace(layer->grad_weights, dW);
-    tensor_free(dW); 
+    zf_tensor_add_inplace(layer->grad_weights, dW);
+    zf_tensor_release(dW); 
 
-    Tensor *db = tensor_sum_rows(grad_output);
-    if (!db) return NULL;
+    Tensor *db = zf_tensor_sum_rows(grad_output);
+    if (!db)
+    {
+        return NULL;
+    }
 
-    tensor_add_inplace(layer->grad_bias, db);
-    tensor_free(db);
-    Tensor *dX = tensor_mat_mul_transpose(grad_output, layer->weights);
+    zf_tensor_add_inplace(layer->grad_bias, db);
+    zf_tensor_release(db);
+
+    Tensor *dX = zf_tensor_mat_mul_transpose(grad_output, layer->weights);
     return dX;
 }
 
-int dense_parameters(DenseLayer *layer, Parameter out_params[2]) {
-    if (!layer || !out_params) return 0;
+int zf_dense_parameters(DenseLayer *layer, Parameter out_params[2]) 
+{
+    if (!layer || !out_params)
+    {
+        return 0;
+    }
 
     out_params[0].value = layer->weights;
     out_params[0].grad  = layer->grad_weights;
@@ -88,14 +137,21 @@ int dense_parameters(DenseLayer *layer, Parameter out_params[2]) {
     return 2;
 }
 
-void dense_free(DenseLayer *layer) {
-    if (!layer) return;
+void zf_dense_free(DenseLayer *layer) 
+{
+    if (!layer)
+    {
+        return;
+    }
 
-    tensor_free(layer->weights);
-    tensor_free(layer->bias);
-    tensor_free(layer->grad_weights);
-    tensor_free(layer->grad_bias);
-    tensor_free(layer->last_input); 
+    zf_tensor_release(layer->weights);
+    zf_tensor_release(layer->bias);
+    zf_tensor_release(layer->grad_weights);
+    zf_tensor_release(layer->grad_bias);
+    if (layer->last_input)
+    {
+        zf_tensor_release(layer->last_input);
+    } 
 
     free(layer);
 }

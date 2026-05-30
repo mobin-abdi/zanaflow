@@ -17,8 +17,8 @@ struct AutogradNode {
     int visited;
 };
 
-AutogradNode *autograd_node_create(BackwardFn backward, int input_count);
-void autograd_node_release(AutogradNode *node);
-void zanaflow_backward(Tensor *loss);
+AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count);
+void zf_autograd_node_release(AutogradNode *node);
+void zf_backward(Tensor *loss);
 
 #endif

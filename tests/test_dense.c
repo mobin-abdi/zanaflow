@@ -27,7 +27,7 @@ int main() {
     input->data[0] = 0.5f;
     input->data[1] = -0.2f;
 
-    layer->weights->data[0] = 1.0fک
+    layer->weights->data[0] = 1.0f;
     layer->weights->data[1] = 2.0f;
     layer->weights->data[2] = 3.0f;
     layer->weights->data[3] = 4.0f;

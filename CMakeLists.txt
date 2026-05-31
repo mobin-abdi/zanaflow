@@ -4,6 +4,8 @@ project(ZanaFlow C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+include_directories(include)
+
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.c")
 
 add_library(zanaflow STATIC ${SOURCES})
@@ -53,3 +55,7 @@ add_test(NAME test_tensors COMMAND test_tensors)
 add_executable(test_tensor_advanced tests/test_tensor_advanced.c)
 target_link_libraries(test_tensor_advanced PRIVATE zanaflow)
 add_test(NAME test_tensor_advanced COMMAND test_tensor_advanced)
+
+add_executable(test_dense_init tests/test_dense_init.c)
+target_link_libraries(test_dense_init PRIVATE zanaflow)
+add_test(NAME test_dense_init COMMAND test_dense_init)

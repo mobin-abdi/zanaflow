@@ -14,14 +14,14 @@ static void apply_sgd_update(Tensor *value, float lr)
     }
 }
 
-SGD *zf_sgd_create(Parameter *params, int count, float lr)
+SGD *zf_sgd_create(Parameter **params, int count, float lr)
 {
     if (!params || count <= 0)
     {
         return NULL;
     }
 
-    SGD *opt = (SGD *)malloc(sizeof(SGD));
+    SGD *opt = malloc(sizeof(SGD));
     if (!opt)
     {
         return NULL;
@@ -42,7 +42,8 @@ void zf_sgd_zero_grad(SGD *opt)
 
     for (int i = 0; i < opt->count; i++)
     {
-        Tensor *value = opt->params[i].value;
+        Parameter *p = opt->params[i];
+        Tensor *value = p ? p->value : NULL;
         if (value)
         {
             zf_tensor_zero_grad(value);
@@ -59,7 +60,8 @@ void zf_sgd_step(SGD *opt)
 
     for (int i = 0; i < opt->count; i++)
     {
-        Tensor *value = opt->params[i].value;
+        Parameter *p = opt->params[i];
+        Tensor *value = p ? p->value : NULL;
         if (value && value->grad)
         {
             apply_sgd_update(value, opt->lr);

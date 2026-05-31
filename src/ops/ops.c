@@ -552,63 +552,48 @@ Tensor *zf_tensor_mean_all(Tensor *a)
 
 Tensor *zf_tensor_add_bias(Tensor *a, Tensor *b)
 {
-    if (!a || !b)
-    {
-        return NULL;
-    }
-
-    if (a->ndim != 2)
-    {
-        return NULL;
-    }
-
-    if (b->ndim != 1)
-    {
-        return NULL;
-    }
+    if (!a || !b) return NULL;
+    if (a->ndim != 2) return NULL;
 
     int rows = a->shape[0];
     int cols = a->shape[1];
-    if (b->shape[0] != cols)
-    {
+    int bias_size;
+
+    // پشتیبانی از بایاس ۱ بعدی و ۲ بعدی [1, cols]
+    if (b->ndim == 1) {
+        if (b->shape[0] != cols) return NULL;
+        bias_size = b->shape[0];
+    } else if (b->ndim == 2) {
+        if (b->shape[0] != 1 || b->shape[1] != cols) return NULL;
+        bias_size = b->shape[1];  // = cols
+    } else {
         return NULL;
     }
 
     Tensor *out = zf_tensor_create(a->shape, a->ndim);
-    if (!out)
-    {
-        return NULL;
-    }
+    if (!out) return NULL;
 
-    for (int r = 0; r < rows; r++)
-    {
-        for (int c = 0; c < cols; c++)
-        {
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
             int idx = r * cols + c;
-            out->data[idx] = a->data[idx] + b->data[c];
+            out->data[idx] = a->data[idx] + b->data[c];  // b->data پیوسته است
         }
     }
 
-    if (a->requires_grad || b->requires_grad)
-    {
+    if (a->requires_grad || b->requires_grad) {
         out->requires_grad = 1;
-
         AutogradNode *node = zf_autograd_node_create(backward_add_bias, 2);
-        if (!node)
-        {
+        if (!node) {
             zf_tensor_release(out);
             return NULL;
         }
-
         node->inputs[0] = a;
         zf_tensor_retain(a);
         node->inputs[1] = b;
         zf_tensor_retain(b);
-
         node->output = out;
         node->ctx = NULL;
         node->ctx_free = NULL;
-
         out->grad_node = node;
     }
 

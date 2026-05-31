@@ -1,38 +1,28 @@
 #include <zanaflow/optim/sgd.h>
 #include <stdlib.h>
-#include <string.h>
 
-static void zf_zero_grad_tensor(Tensor *grad)
+static void apply_sgd_update(Tensor *value, float lr)
 {
-    if (!grad || !grad->data)
+    if (!value || !value->data || !value->grad)
     {
         return;
     }
-    zf_tensor_fill(grad, 0.0f);
-}
 
-static void apply_sgd_update(Tensor *value, const Tensor *grad, float lr) 
-{
-    if (!value || !grad || !value->data || !grad->data || value->size != grad->size) 
+    for (int i = 0; i < value->size; i++)
     {
-        return; 
-    }
-
-    for (int i = 0; i < value->size; i++) 
-    {
-        value->data[i] -= lr * grad->data[i];
+        value->data[i] -= lr * value->grad[i];
     }
 }
 
-SGD *zf_sgd_create(Parameter *params, int count, float lr) 
+SGD *zf_sgd_create(Parameter *params, int count, float lr)
 {
-    if (!params || count <= 0) 
+    if (!params || count <= 0)
     {
         return NULL;
     }
 
     SGD *opt = (SGD *)malloc(sizeof(SGD));
-    if (!opt) 
+    if (!opt)
     {
         return NULL;
     }
@@ -43,22 +33,7 @@ SGD *zf_sgd_create(Parameter *params, int count, float lr)
     return opt;
 }
 
-void zf_sgd_zero_grad(SGD *opt) {
-    if (!opt)
-    {
-        return;
-    }
-
-    for (int i = 0; i < opt->count; i++) 
-    {
-        if (opt->params[i].grad) 
-        {
-            zf_zero_grad_tensor(opt->params[i].grad);
-        }
-    }
-}
-
-void zf_sgd_step(SGD *opt) 
+void zf_sgd_zero_grad(SGD *opt)
 {
     if (!opt)
     {
@@ -67,18 +42,37 @@ void zf_sgd_step(SGD *opt)
 
     for (int i = 0; i < opt->count; i++)
     {
-        if (opt->params[i].value && opt->params[i].grad) 
+        Tensor *value = opt->params[i].value;
+        if (value)
         {
-            apply_sgd_update(opt->params[i].value, opt->params[i].grad, opt->lr);
+            zf_tensor_zero_grad(value);
         }
     }
 }
 
-void zf_sgd_free(SGD *opt) 
+void zf_sgd_step(SGD *opt)
 {
-    if (!opt) 
+    if (!opt)
     {
         return;
     }
+
+    for (int i = 0; i < opt->count; i++)
+    {
+        Tensor *value = opt->params[i].value;
+        if (value && value->grad)
+        {
+            apply_sgd_update(value, opt->lr);
+        }
+    }
+}
+
+void zf_sgd_free(SGD *opt)
+{
+    if (!opt)
+    {
+        return;
+    }
+
     free(opt);
 }

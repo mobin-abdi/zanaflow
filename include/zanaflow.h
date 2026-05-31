@@ -3,7 +3,6 @@
 
 // Core & Utils
 #include <zanaflow/core/parameter.h>
-#include <zanaflow/utils/utils.h>
 
 // Tensor Operations
 #include <zanaflow/tensor/tensor.h>
@@ -23,5 +22,7 @@
 
 // matrix multiply
 #include <zanaflow/ops/linalg.h>
+
+#include <zanaflow/nn/init.h>
 
 #endif

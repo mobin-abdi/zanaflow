@@ -4,5 +4,6 @@
 #include <zanaflow/tensor/tensor.h>
 
 Tensor* zf_loss_mse(Tensor *pred, Tensor *target);
+Tensor *zf_loss_cross_entropy(Tensor *logits, Tensor *target_indices);
 
 #endif

@@ -15,6 +15,7 @@ struct AutogradNode {
     void (*ctx_free)(void *);
     RefCount ref;
     int visited;
+    Tensor *output;
 };
 
 AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count);

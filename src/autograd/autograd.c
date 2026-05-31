@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count) 
+AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count)
 {
     if (input_count < 0)
     {
@@ -18,6 +18,7 @@ AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count)
     node->backward = backward;
     node->input_count = input_count;
     node->inputs = NULL;
+    node->output = NULL;
     node->ctx = NULL;
     node->ctx_free = NULL;
     node->visited = 0;
@@ -36,7 +37,7 @@ AutogradNode *zf_autograd_node_create(BackwardFn backward, int input_count)
     return node;
 }
 
-void zf_autograd_node_release(AutogradNode *node) 
+void zf_autograd_node_release(AutogradNode *node)
 {
     if (!node)
     {
@@ -48,16 +49,16 @@ void zf_autograd_node_release(AutogradNode *node)
         return;
     }
 
-    if (node->ctx && node->ctx_free) 
+    if (node->ctx && node->ctx_free)
     {
         node->ctx_free(node->ctx);
     }
 
-    if (node->inputs) 
+    if (node->inputs)
     {
-        for (int i = 0; i < node->input_count; i++) 
+        for (int i = 0; i < node->input_count; i++)
         {
-            if (node->inputs[i]) 
+            if (node->inputs[i])
             {
                 zf_tensor_release(node->inputs[i]);
             }
@@ -68,7 +69,7 @@ void zf_autograd_node_release(AutogradNode *node)
     free(node);
 }
 
-static void zf_build_topo(AutogradNode *node, AutogradNode ***list, int *size, int *cap) 
+static void zf_build_topo(AutogradNode *node, AutogradNode ***list, int *size, int *cap)
 {
     if (!node || node->visited)
     {
@@ -76,19 +77,19 @@ static void zf_build_topo(AutogradNode *node, AutogradNode ***list, int *size, i
     }
     node->visited = 1;
 
-    for (int i = 0; i < node->input_count; i++) 
+    for (int i = 0; i < node->input_count; i++)
     {
-        if (node->inputs[i] && node->inputs[i]->grad_node) 
+        if (node->inputs[i] && node->inputs[i]->grad_node)
         {
             zf_build_topo(node->inputs[i]->grad_node, list, size, cap);
         }
     }
 
-    if (*size >= *cap) 
+    if (*size >= *cap)
     {
         *cap = (*cap == 0) ? 16 : (*cap * 2);
-        *list = realloc(*list, (*cap) * sizeof(AutogradNode*));
-        if (!*list) 
+        *list = realloc(*list, (*cap) * sizeof(AutogradNode *));
+        if (!*list)
         {
             fprintf(stderr, "Error reallocating topo list.\n");
             exit(1);
@@ -97,45 +98,76 @@ static void zf_build_topo(AutogradNode *node, AutogradNode ***list, int *size, i
     (*list)[(*size)++] = node;
 }
 
-void zf_backward(Tensor *loss) 
+void zf_backward(Tensor *loss)
 {
-    if (!loss || !loss->grad_node) 
+    if (!loss)
     {
-        fprintf(stderr, "Warning: Loss tensor has no grad_node.\n");
+        fprintf(stderr, "zf_backward: loss is NULL\n");
         return;
     }
 
-    if (!zf_tensor_ensure_grad(loss)) 
+    if (!loss->requires_grad)
+        return;
+
+    if (loss->size != 1)
     {
-        fprintf(stderr, "Error: Could not allocate grad for loss.\n");
+        fprintf(stderr, "zf_backward: expected scalar loss (size==1), got size=%d. "
+                        "Call sum_all/mean_all first.\n",
+                loss->size);
+        return;
+    }
+
+    if (!loss->grad_node)
+    {
+        if (!zf_tensor_ensure_grad(loss))
+        {
+            return;
+        }
+        loss->grad[0] = 1.0f;
+        return;
+    }
+
+    if (!zf_tensor_ensure_grad(loss))
+    {
+        fprintf(stderr, "zf_backward: could not allocate grad for loss\n");
         return;
     }
     loss->grad[0] = 1.0f;
 
     AutogradNode **topo = NULL;
-    int size = 0, cap = 0;
+    int n = 0, cap = 0;
 
-    zf_build_topo(loss->grad_node, &topo, &size, &cap);
+    zf_build_topo(loss->grad_node, &topo, &n, &cap);
 
-    for (int i = size - 1; i >= 0; i--) 
+    for (int i = n - 1; i >= 0; i--)
     {
         AutogradNode *node = topo[i];
-        float *grad_output = NULL;
-
-        if (node->ctx) 
+        if (!node)
         {
-            Tensor *output_tensor = (Tensor*)node->ctx;
-            if (output_tensor && output_tensor->grad) 
-            {
-                grad_output = output_tensor->grad;
-            }
+            continue;
         }
 
-        if (node->backward) 
+        if (!node->backward)
         {
-            node->backward(node, grad_output);
+            node->visited = 0;
+            continue;
         }
 
+        if (!node->output)
+        {
+            fprintf(stderr, "zf_backward: node->output is NULL (op must set node->output)\n");
+            node->visited = 0;
+            continue;
+        }
+
+        if (!zf_tensor_ensure_grad(node->output))
+        {
+            fprintf(stderr, "zf_backward: could not allocate grad for node output\n");
+            node->visited = 0;
+            continue;
+        }
+
+        node->backward(node, node->output->grad);
         node->visited = 0;
     }
 

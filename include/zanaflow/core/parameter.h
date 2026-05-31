@@ -5,7 +5,6 @@
 
 typedef struct {
     Tensor *value;
-    Tensor *grad;
 } Parameter;
 
 #endif

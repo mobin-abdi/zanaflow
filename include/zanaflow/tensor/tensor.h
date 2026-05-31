@@ -28,5 +28,6 @@ Tensor *zf_tensor_full(const int *shape, int ndim, float value);
 Tensor *zf_tensor_zeros(const int *shape, int ndim);
 Tensor *zf_tensor_ones(const int *shape, int ndim);
 Tensor *zf_tensor_reshape(const Tensor *t, const int *new_shape, int new_ndim);
+int zf_tensor_numel(const Tensor *t);
 
 #endif

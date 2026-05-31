@@ -86,10 +86,11 @@ int zf_tensor_ensure_grad(Tensor *t)
 
 void zf_tensor_zero_grad(Tensor *t)
 {
-    if (t && t->grad) 
+    if (!t || !t->grad)
     {
-        memset(t->grad, 0, t->size * sizeof(float));
+        return;
     }
+    memset(t->grad, 0, (size_t)t->size * sizeof(float));
 }
 
 void zf_tensor_print(Tensor *t) 
@@ -169,6 +170,7 @@ Tensor *zf_tensor_full(const int *shape, int ndim, float value)
     {
         zf_tensor_fill(t, value);
     }
+    return t;
 }
 
 Tensor *zf_tensor_zeros(const int *shape, int ndim)
@@ -210,4 +212,9 @@ Tensor *zf_tensor_reshape(const Tensor *t, const int *new_shape, int new_ndim)
     memcpy(out->data, t->data, sizeof(float) * t->size);
     
     return out;
+}
+
+int zf_tensor_numel(const Tensor *t)
+{
+    return t ? t->size : 0;
 }

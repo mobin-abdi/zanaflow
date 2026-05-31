@@ -46,14 +46,14 @@ int main(void)
         return 1;
     }
 
-    print_tensor_2d("weights", layer->weights);
-    print_tensor_1d("bias", layer->bias);
+    print_tensor_2d("weights", layer->weights->value);
+    print_tensor_1d("bias", layer->bias->value);
 
-    for (int i = 0; i < layer->bias->shape[0]; i++)
+    for (int i = 0; i < layer->bias->value->shape[0]; i++)
     {
-        if (layer->bias->data[i] != 0.0f)
+        if (layer->bias->value->data[i] != 0.0f)
         {
-            fprintf(stderr, "Bias is not zero-initialized at %d: %f\n", i, layer->bias->data[i]);
+            fprintf(stderr, "Bias is not zero-initialized at %d: %f\n", i, i, layer->bias->value->data[i]);
             zf_dense_free(layer);
             return 2;
         }

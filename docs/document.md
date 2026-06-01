@@ -1,4 +1,3 @@
-```markdown
 # Zanaflow Tutorial – Learning the Sine Function with a Neural Network  
 ## آموزش زانافلو – یادگیری تابع سینوس با یک شبکه عصبی
 

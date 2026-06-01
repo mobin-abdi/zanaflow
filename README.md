@@ -35,11 +35,15 @@ ZanaFlow is built for:
 **NN**
 - `Dense` (Linear) layer with backward
 - Activations: ReLU, Leaky ReLU, Tanh, Softmax *(as available in repo)*  
-- Loss: MSE *(as available in repo)*
+
+**Loss**
+- MSE
+- Cross Entropy
+- Binary Cross Entropy
 
 **Optimizers**
 - SGD
-- Adam, RMSProp *(if implemented in your repo; otherwise remove)*
+- Adam, RMSProp
 
 **Data**
 - CSV loader (`zf_csv_load_f32`) for small datasets & examples  

@@ -35,8 +35,8 @@ return 0;
 - [x] Tensor Core & Basic Ops
 - [x] Dense Layers & SGD Optimizer
 - [x] Activation Functions
-- [ ] Autograd Engine: Implementing the computation graph for automatic differentiation.
-- [ ] More Optimizers: Adam, RMSProp.
+- [x] Autograd Engine: Implementing the computation graph for automatic differentiation.
+- [x] More Optimizers: Adam, RMSProp.
 - [ ] Advanced Layers: Conv2D, Dropout, Pooling.
 - [ ] Documentation: Generating full Doxygen API reference.
 

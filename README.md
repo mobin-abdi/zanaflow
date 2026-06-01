@@ -1,57 +1,149 @@
-# Zanaflow
+# ZanaFlow
 
-**Zanaflow** is a modular, lightweight deep learning framework implemented from scratch in C. 
+**ZanaFlow** is a modular, lightweight deep learning framework implemented **from scratch in C** — focused on clarity, clean abstractions, and a practical Autograd core.
 
-This project aims to provide a clear, educational, and clean foundation for understanding how neural network components, tensor operations, and optimization algorithms work under the hood, without relying on heavy external dependencies.
+**زانا‌فلو** یک فریمورک سبک و ماژولار یادگیری عمیق است که **از صفر با C** پیاده‌سازی شده؛ هدفش شفافیت، معماری تمیز و یک هسته‌ی Autograd کاربردی است.
 
-> **Status:** Work In Progress (WIP). This project is under active development.
+> **Status:** v0.1.x — early-stage, API may change.  
+> **وضعیت:** نسخه‌های اولیه؛ احتمال تغییر API وجود دارد.
 
-## Features
-Currently, Zanaflow provides the building blocks for creating and training simple neural networks:
-*   **Tensor Operations:** Multi-dimensional array handling with basic arithmetic.
-*   **Neural Network Layers:** Fully implemented `Dense` layer with backward pass support.
-*   **Optimizers:** Stochastic Gradient Descent (SGD) implementation.
-*   **Activations:** Built-in support for ReLU, Leaky ReLU, Tanh, and Softmax.
-*   **Loss Functions:** MSE Loss implementation.
-*   **Modular Architecture:** Designed with separation of concerns between layers, optimizers, and tensors.
+---
 
-## Quick Start
-You can easily include the framework and start building.
+## Why ZanaFlow? | چرا ZanaFlow؟
+
+**EN**
+ZanaFlow is built for:
+- Understanding neural networks “under the hood” (tensors → ops → graph → gradients)
+- Writing fast, dependency-minimal C code
+- Having a small, hackable codebase for experiments and learning
+
+**FA**
+زانا‌فلو ساخته شده برای:
+- فهم دقیق شبکه‌های عصبی از داخل (تنسور → عملیات → گراف → گرادیان)
+- کدنویسی سریع و کم‌وابستگی در C
+- داشتن کدبیس کوچک و قابل هک برای تجربه و یادگیری
+
+---
+
+## Features | قابلیت‌ها
+
+**Core**
+- **Tensor** (float32) with explicit memory management
+- **Autograd engine** (dynamic computation graph + backprop)
+- **Deterministic examples/tests** (to validate correctness)
+
+**NN**
+- `Dense` (Linear) layer with backward
+- Activations: ReLU, Leaky ReLU, Tanh, Softmax *(as available in repo)*  
+- Loss: MSE *(as available in repo)*
+
+**Optimizers**
+- SGD
+- Adam, RMSProp *(if implemented in your repo; otherwise remove)*
+
+**Data**
+- CSV loader (`zf_csv_load_f32`) for small datasets & examples  
+  (Note: large datasets will move to a streaming/binary record loader.)
+
+---
+
+## Installation / Build | نصب / بیلد
+
+**EN**
+ZanaFlow is a C library. Compile it together with your project or build a static library.
+
+**FA**
+زانا‌فلو یک کتابخانه C است. می‌توانید آن را همراه پروژه‌تان کامپایل کنید یا به صورت استاتیک بسازید.
+
+### Build example (single command)
+> Adjust paths based on your repo layout.
+
+```bash
+cc -O2 -Wall -Wextra \
+  -I./include \
+  examples/mlp_example.c \
+  src/*.c \
+  -lm -o mlp
+```
+
+### Run:
+```bash
+./mlp
+```
+
+---
+
+### Quick Start | شروع سریع
+#### This snippet is intentionally minimal. For full training loops, see examples/.
+
 ```c
 #include <zanaflow.h>
 
-int main() {
-// Example: Create a simple tensor and run a operation
-Tensor* t = tensor_create((size_t[]){2, 2}, 4);
-tensor_fill_random_uniform(t, -1.0f, 1.0f);
+int main(void) {
+// Create a 2x2 tensor (example — adjust to your actual API)
+// Prefer using the official zf_* APIs to keep consistency.
+//
+// Tensor *t = zf_tensor_create((int[]){2,2}, 2);
 
-// ... define layers, perform forward pass ...
-
-tensor_free(t);
 return 0;
 }
 ```
-## Project Roadmap
-- [x] Tensor Core & Basic Ops
-- [x] Dense Layers & SGD Optimizer
-- [x] Activation Functions
-- [x] Autograd Engine: Implementing the computation graph for automatic differentiation.
-- [x] More Optimizers: Adam, RMSProp.
-- [ ] Advanced Layers: Conv2D, Dropout, Pooling.
-- [ ] Documentation: Generating full Doxygen API reference.
 
-## Project Structure
-```
+---
+
+##### ✅ Tip: Keep inputs/targets with requires_grad = 0 to reduce memory usage.
+
+---
+
+### Examples | مثال‌ها
+
+- examples/mlp_examples.c — MLP learns sin(x)
+- tests/ — unit tests for loader / ops (as available)
+
+---
+
+### Project Roadmap | نقشه راه
+
+- [x] Tensor core + basic ops
+- [x] Dense + activations + MSE
+- [x] Autograd (dynamic graph)
+- [x] Optimizers: SGD (+ Adam/RMSProp if present)
+- [x] CSV loader (in-memory) with error reporting
+- [ ] Binary/Streaming data loader (record-based)
+- [ ] Advanced layers: Conv2D, Dropout, Pooling
+- [ ] Doxygen: full API reference
+- [ ] More tests + CI (GitHub Actions)
+
+---
+
+### Project Structure | ساختار پروژه
+
+```text
 zanaflow/
-├── include/zanaflow/    # Public headers (The API)
-├── src/                 # Implementation logic
-├── examples/            # Usage examples
-├── tests/               # Unit tests
-└── docs/                # Architecture & guides
+├── include/zanaflow/     # Public headers (API)
+├── src/                  # Implementation
+├── examples/             # Examples (training loops / demos)
+├── tests/                # Unit tests
+└── docs/                 # Guides & architecture notes
 ```
 
-## Contributing
-Since this is an educational project, contributions are welcome! Whether it’s adding new layers, improving tensor performance, or writing unit tests, feel free to open a Pull Request.
+---
 
-## License
-Distributed under the Apache License 2.0. See LICENSE for more information.
+### Contributing | مشارکت
+
+**EN**
+PRs are welcome — especially tests, examples, and docs.
+If you want to add a feature, please open an Issue first to align on API design.
+
+**FA**
+Pull Request آزاد است—به‌خصوص تست‌ها، مثال‌ها و مستندات.
+برای فیچر جدید بهتر است اول Issue باز کنید تا روی طراحی API هماهنگ شویم.
+
+*شما می توانید در تلگرام هم با من در ارتباط باشید*
+*you can connect me in Telegram*
+
+---
+
+### License | لایسنس
+
+*Apache-2.0 — see LICENSE.*

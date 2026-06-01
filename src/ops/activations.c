@@ -106,20 +106,19 @@ Tensor *zf_sigmoid(const Tensor *a)
             zf_tensor_release(out);
             return NULL;
         }
-        node->inputs[0] = (Tensor *)a;
 
+        node->inputs[0] = (Tensor *)a;
+        zf_tensor_retain((Tensor *)a);
+
+        node->output = out;
         out->grad_node = node;
     }
+
     out->requires_grad = requires_grad;
 
     for (int i = 0; i < a->size; i++)
     {
         out->data[i] = 1.0f / (1.0f + expf(-a->data[i]));
-    }
-
-    if (node)
-    {
-        node->output = out;
     }
 
     return out;

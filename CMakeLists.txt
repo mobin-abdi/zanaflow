@@ -27,7 +27,7 @@ function(zf_add_test target_name test_source)
 endfunction()
 
 # ---- Enabled tests ----
-zf_add_test(test_adam           tests/test_adam_sanity.c)
+zf_add_test(test_adam tests/test_adam_sanity.c)
 zf_add_test(test_adam_exact_step tests/test_adam_exact_step.c)
 
 # ---- Other tests (enable when ready) ----
@@ -41,3 +41,6 @@ zf_add_test(test_sgd tests/test_sgd.c)
 zf_add_test(test_tensors tests/test_tensors.c)
 zf_add_test(test_tensor_advanced tests/test_tensor_advanced.c)
 zf_add_test(test_dense_init tests/test_dense_init.c)
+zf_add_test(test_cross_entropy tests/test_cross_entropy.c)
+zf_add_test(test_train_linear_bce tests/test_train_linear_bce.c)
+zf_add_test(test_train_linear_ce tests/test_train_linear_ce.c)
